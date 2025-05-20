@@ -1,0 +1,40 @@
+[
+  {
+    "id": "1",
+    "name": "Smartphone X",
+    "description": "Latest model with advanced features",
+    "price": 699.99,
+    "category": "Electronics",
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Smartphone",
+    "stock": 50,
+    "createdAt": "2024-02-20T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "Laptop Pro",
+    "description": "High-performance laptop for professionals",
+    "price": 500.99,
+    "category": "Electronics",
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Laptop",
+    "stock": 30,
+    "createdAt": "2024-02-20T00:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "Coffee Maker",
+    "description": "Automatic coffee maker with timer",
+    "price": 79.99,
+    "category": "Home & Kitchen",
+    "image": "https://via.placeholder.com/150",
+    "createdAt": "2024-02-20T00:00:00.000Z"
+  },
+  {
+    "id": "1747748694845",
+    "name": "testing",
+    "description": "testing",
+    "price": "8",
+    "category": "testing",
+    "image": "https://www.google.com/imgres?q=any%20image&imgurl=https%3A%2F%2Fwww.shutterstock.com%2Fimage-photo%2Fred-text-any-questions-paper-600w-2312396111.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fany-questions&docid=8IgxqHl34lVbAM&tbnid=_dK7iPs9CDK0VM&vet=12ahUKEwji_JmYl7KNAxV3SmwGHQikOwUQM3oECGUQAA..i&w=600&h=421&hcb=2&ved=2ahUKEwji_JmYl7KNAxV3SmwGHQikOwUQM3oECGUQAA",
+    "createdAt": "2025-05-20T13:44:54.845Z"
+  }
+]
