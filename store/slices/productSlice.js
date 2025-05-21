@@ -1,50 +1,92 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 
+// Async thunks
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async () => {
-    const response = await axios.get('/api/products');
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 export const addProduct = createAsyncThunk(
   'products/addProduct',
-  async (productData) => {
-    const response = await axios.post('/api/products', productData);
-    return response.data;
+  async (product, { rejectWithValue }) => {
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 export const updateProduct = createAsyncThunk(
   'products/updateProduct',
-  async (productData) => {
-    const response = await axios.put(`/api/products/${productData.id}`, productData);
-    return response.data;
+  async ({ id, product }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 export const deleteProduct = createAsyncThunk(
   'products/deleteProduct',
-  async (productId) => {
-    await axios.delete(`/api/products/${productId}`);
-    return productId;
+  async (id, { rejectWithValue }) => {
+    try {
+      await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 const initialState = {
-  products: [],
+  items: [],
   loading: false,
   error: null,
+  filters: {
+    category: '',
+    minPrice: '',
+    maxPrice: '',
+    search: '',
+  },
 };
 
 const productSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    clearError: (state) => {
-      state.error = null;
+    setFilters: (state, action) => {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+    clearFilters: (state) => {
+      state.filters = initialState.filters;
     },
   },
   extraReducers: (builder) => {
@@ -56,29 +98,29 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload;
+        state.items = action.payload;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       // Add Product
       .addCase(addProduct.fulfilled, (state, action) => {
-        state.products.push(action.payload);
+        state.items.push(action.payload);
       })
       // Update Product
       .addCase(updateProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex(product => product.id === action.payload.id);
+        const index = state.items.findIndex((item) => item.id === action.payload.id);
         if (index !== -1) {
-          state.products[index] = action.payload;
+          state.items[index] = action.payload;
         }
       })
       // Delete Product
       .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.products = state.products.filter(product => product.id !== action.payload);
+        state.items = state.items.filter((item) => item.id !== action.payload);
       });
   },
 });
 
-export const { clearError } = productSlice.actions;
+export const { setFilters, clearFilters } = productSlice.actions;
 export default productSlice.reducer; 

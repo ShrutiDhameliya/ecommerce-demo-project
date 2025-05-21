@@ -1,31 +1,25 @@
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { Provider } from 'react-redux';
-import Layout from '../components/layout/Layout';
-import { store } from '../store';
+import { ThemeProvider } from '@mui/material/styles';
+import { SessionProvider } from 'next-auth/react';
+import { Provider } from 'react-redux'; // <-- Import Redux Provider
+import { CartProvider } from '../contexts/CartContext';
+import { store } from '../store'; // <-- Import your Redux store
+import theme from '../theme';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-});
-
-function MyApp({ Component, pageProps }) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}) {
   return (
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ThemeProvider>
-    </Provider>
+    <SessionProvider session={session}>
+      <CartProvider>
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Component {...pageProps} />
+          </ThemeProvider>
+        </Provider>
+      </CartProvider>
+    </SessionProvider>
   );
 }
-
-export default MyApp; 

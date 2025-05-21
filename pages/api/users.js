@@ -1,8 +1,14 @@
+import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 
 const dataDirectory = path.join(process.cwd(), 'data');
 const usersFile = path.join(dataDirectory, 'users.json');
+
+// Helper function to hash password
+const hashPassword = (password) => {
+  return crypto.createHash('sha256').update(password).digest('hex');
+};
 
 // Helper function to read data
 async function readData(filePath) {
@@ -32,19 +38,43 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         const users = await readData(usersFile);
-        res.status(200).json(users);
+        // Remove password hashes from response
+        const sanitizedUsers = users.map(({ password, ...user }) => user);
+        res.status(200).json(sanitizedUsers);
         break;
 
       case 'POST':
+        const { email, password, ...userData } = req.body;
+
+        // Validate required fields
+        if (!email || !password) {
+          return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        // Check if user already exists
+        const currentUsers = await readData(usersFile);
+        if (currentUsers.some(user => user.email === email)) {
+          return res.status(400).json({ error: 'User with this email already exists' });
+        }
+
+        // Hash password and create new user
+        const hashedPassword = hashPassword(password);
         const newUser = {
           id: Date.now().toString(),
-          ...req.body,
+          email,
+          password: hashedPassword,
+          ...userData,
           createdAt: new Date().toISOString(),
-          isBlocked: false,
+          blocked: false,
         };
-        const currentUsers = await readData(usersFile);
+
+        console.log('Creating new user:', { ...newUser, password: '[REDACTED]' }); // Debug log
+
         await writeData(usersFile, [...currentUsers, newUser]);
-        res.status(201).json(newUser);
+        
+        // Return user without password
+        const { password: _, ...userWithoutPassword } = newUser;
+        res.status(201).json(userWithoutPassword);
         break;
 
       case 'PUT':
@@ -59,15 +89,18 @@ export default async function handler(req, res) {
 
           const updatedUser = {
             ...allUsers[userIndex],
-            isBlocked: !allUsers[userIndex].isBlocked,
+            blocked: !allUsers[userIndex].blocked,
             updatedAt: new Date().toISOString(),
           };
           
           allUsers[userIndex] = updatedUser;
           await writeData(usersFile, allUsers);
-          res.status(200).json(updatedUser);
+          
+          // Return user without password
+          const { password: __, ...userWithoutPassword } = updatedUser;
+          res.status(200).json(userWithoutPassword);
         } else {
-          const { id } = req.body;
+          const { id, password: newPassword, ...updateData } = req.body;
           const allUsers = await readData(usersFile);
           const userIndex = allUsers.findIndex(user => user.id === id);
           
@@ -77,13 +110,21 @@ export default async function handler(req, res) {
 
           const updatedUser = {
             ...allUsers[userIndex],
-            ...req.body,
+            ...updateData,
             updatedAt: new Date().toISOString(),
           };
+
+          // If password is being updated, hash it
+          if (newPassword) {
+            updatedUser.password = hashPassword(newPassword);
+          }
           
           allUsers[userIndex] = updatedUser;
           await writeData(usersFile, allUsers);
-          res.status(200).json(updatedUser);
+          
+          // Return user without password
+          const { password: ___, ...userWithoutPassword } = updatedUser;
+          res.status(200).json(userWithoutPassword);
         }
         break;
 

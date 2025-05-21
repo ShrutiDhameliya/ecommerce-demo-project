@@ -1,287 +1,322 @@
-import { Block as BlockIcon, CheckCircle as CheckCircleIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Block as BlockIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  CheckCircle as UnblockIcon
+} from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
+  Card,
+  CardContent,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   Grid,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addNewUser, deleteUserData, fetchUsers, toggleUserBlock, updateUserData } from '../../store/slices/userSlice';
+import AdminLayout from '../../components/layouts/AdminLayout';
 
-export default function AdminUsers() {
-  const dispatch = useDispatch();
-  const { users = [], loading, error } = useSelector((state) => state.users);
-  const [open, setOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
+export default function UserManagement() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    role: 'user',
-    isBlocked: false,
+    role: 'customer'
   });
 
   useEffect(() => {
-    dispatch(fetchUsers());
-  }, [dispatch]);
-
-  const handleOpen = (user = null) => {
-    if (user) {
-      setEditingUser(user);
-      setFormData({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isBlocked: user.isBlocked || false,
-        password: '', // Don't show password when editing
-      });
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
+    } else if (status === 'authenticated' && session.user.role !== 'admin') {
+      router.push('/shop');
     } else {
-      setEditingUser(null);
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-        role: 'user',
-        isBlocked: false,
-      });
+      fetchUsers();
     }
-    setOpen(true);
-  };
+  }, [status, session]);
 
-  const handleClose = () => {
-    setOpen(false);
-    setEditingUser(null);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const fetchUsers = async () => {
     try {
-      if (editingUser) {
-        const updateData = {
-          id: editingUser.id,
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          isBlocked: formData.isBlocked,
-        };
-        if (formData.password) {
-          updateData.password = formData.password;
-        }
-        await dispatch(updateUserData(updateData)).unwrap();
-      } else {
-        await dispatch(addNewUser(formData)).unwrap();
-      }
-      handleClose();
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      setUsers(data);
     } catch (error) {
-      console.error('Error saving user:', error);
+      setError('Error loading users');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await dispatch(deleteUserData(id)).unwrap();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
+  const handleCreateClick = () => {
+    setSelectedUser(null);
+    setFormData({
+      name: '',
+      email: '',
+      role: 'customer'
+    });
+    setDialogOpen(true);
+  };
+
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+    setDialogOpen(true);
+  };
+
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setDeleteDialogOpen(true);
   };
 
   const handleToggleBlock = async (user) => {
     try {
-      await dispatch(toggleUserBlock(user.id)).unwrap();
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...user,
+          blocked: !user.blocked
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to update user');
+      
+      // Update local state
+      setUsers(users.map(u => 
+        u.id === user.id ? { ...u, blocked: !u.blocked } : u
+      ));
     } catch (error) {
-      console.error('Error updating user status:', error);
+      setError('Error updating user');
+      console.error('Error:', error);
+    }
+  };
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          password: 'user123' // Default password for new users
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to create user');
+      
+      await fetchUsers();
+      setDialogOpen(false);
+    } catch (error) {
+      setError('Error creating user');
+      console.error('Error:', error);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/users/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...selectedUser,
+          ...formData
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to update user');
+      
+      await fetchUsers();
+      setDialogOpen(false);
+    } catch (error) {
+      setError('Error updating user');
+      console.error('Error:', error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await fetch(`/api/users/${selectedUser.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Failed to delete user');
+      
+      await fetchUsers();
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      setError('Error deleting user');
+      console.error('Error:', error);
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
+      <AdminLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
     );
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4">User Management</Typography>
-        <Button variant="contained" color="primary" onClick={() => handleOpen()}>
-          Add New User
-        </Button>
-      </Box>
+    <AdminLayout>
+      <Box sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+          <Typography variant="h4">User Management</Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateClick}
+          >
+            Add User
+          </Button>
+        </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.isArray(users) && users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Typography
-                    sx={{
-                      color: user.role === 'admin' ? 'primary.main' : 'text.primary',
-                      fontWeight: user.role === 'admin' ? 'bold' : 'normal',
-                    }}
-                  >
-                    {user.role}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Grid container spacing={3}>
+          {users.map((user) => (
+            <Grid item xs={12} sm={6} md={4} key={user.id}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">{user.name}</Typography>
+                  <Typography color="textSecondary">{user.email}</Typography>
+                  <Typography>Role: {user.role}</Typography>
+                  <Typography>
+                    Status: {user.blocked ? 'Blocked' : 'Active'}
                   </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    sx={{
-                      color: user.isBlocked ? 'error.main' : 'success.main',
-                    }}
-                  >
-                    {user.isBlocked ? 'Blocked' : 'Active'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleOpen(user)} color="primary">
-                    <EditIcon />
-                  </IconButton>
-                  {user.role !== 'admin' && (
-                    <IconButton 
-                      onClick={() => handleToggleBlock(user)} 
-                      color={user.isBlocked ? 'success' : 'error'}
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditClick(user)}
                     >
-                      {user.isBlocked ? <CheckCircleIcon /> : <BlockIcon />}
+                      <EditIcon />
                     </IconButton>
-                  )}
-                  <IconButton onClick={() => handleDelete(user.id)} color="error">
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingUser ? 'Edit User' : 'Add New User'}
-        </DialogTitle>
-        <form onSubmit={handleSubmit}>
-          <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required={!editingUser}
-                  helperText={editingUser ? 'Leave blank to keep current password' : ''}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Role</InputLabel>
-                  <Select
-                    value={formData.role}
-                    label="Role"
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                  >
-                    <MenuItem value="user">User</MenuItem>
-                    <MenuItem value="admin">Admin</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              {editingUser && (
-                <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={formData.isBlocked}
-                      label="Status"
-                      onChange={(e) =>
-                        setFormData({ ...formData, isBlocked: e.target.value })
-                      }
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteClick(user)}
                     >
-                      <MenuItem value={false}>Active</MenuItem>
-                      <MenuItem value={true}>Blocked</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              )}
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleToggleBlock(user)}
+                    >
+                      {user.blocked ? <UnblockIcon /> : <BlockIcon />}
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
             </Grid>
+          ))}
+        </Grid>
+
+        {/* Create/Edit Dialog */}
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+          <DialogTitle>
+            {selectedUser ? 'Edit User' : 'Create User'}
+          </DialogTitle>
+          <DialogContent>
+            <Box component="form" sx={{ mt: 2 }}>
+              <TextField
+                fullWidth
+                label="Name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                margin="normal"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                margin="normal"
+                required
+              />
+              <TextField
+                fullWidth
+                select
+                label="Role"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+                margin="normal"
+                required
+                SelectProps={{
+                  native: true
+                }}
+              >
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+              </TextField>
+            </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit" variant="contained" color="primary">
-              {editingUser ? 'Update' : 'Add'}
+            <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={selectedUser ? handleEditSubmit : handleCreateSubmit}
+              variant="contained"
+            >
+              {selectedUser ? 'Update' : 'Create'}
             </Button>
           </DialogActions>
-        </form>
-      </Dialog>
-    </Box>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+        >
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete {selectedUser?.name}?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleDeleteConfirm} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </AdminLayout>
   );
 } 

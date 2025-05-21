@@ -1,86 +1,174 @@
-import { AccountCircle, ShoppingCart } from '@mui/icons-material';
+import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {
   AppBar,
+  Avatar,
+  Badge,
+  Box,
   Button,
+  Container,
   IconButton,
   Menu,
   MenuItem,
   Toolbar,
-  Typography
+  Tooltip,
+  Typography,
 } from '@mui/material';
+import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
+import { clearCart } from '../../store/slices/cartSlice';
 
-export default function Header() {
+const Header = () => {
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
+  
+  // Get cart state from Redux
+  const { items: cartItems } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
-  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  // Calculate total items in cart
+  const cartItemCount = cartItems?.reduce((total, item) => total + item.quantity, 0) || 0;
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
 
-  const handleLogout = () => {
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  const handleLogout = async () => {
+    handleCloseUserMenu();
+    await signOut({ redirect: false });
     dispatch(logout());
+    dispatch(clearCart());
     router.push('/auth/login');
   };
 
-  const handleProfile = () => {
-    router.push('/user/profile');
-    handleClose();
+  const handleCartClick = () => {
+    router.push('/shop/cart');
   };
 
   return (
     <AppBar position="static">
-      <Toolbar>
-        <Typography 
-          variant="h6" 
-          component="div" 
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
-          onClick={() => router.push('/')}
-        >
-          E-Commerce Demo
-        </Typography>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* Logo for larger screens */}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
+          >
+            SmartStore
+          </Typography>
 
-        {user ? (
-          <>
-            {user.role === 'admin' ? (
-              <Button color="inherit" onClick={() => router.push('/admin/dashboard')}>
-                Dashboard
-              </Button>
-            ) : (
-              <>
-                <Button color="inherit" onClick={() => router.push('/shop/products')}>
-                  Shop
-                </Button>
-                <Button color="inherit" onClick={() => router.push('/shop/categories')}>
-                  Categories
-                </Button>
-                <IconButton color="inherit" onClick={() => router.push('/shop/cart')}>
-                  <ShoppingCart />
-                </IconButton>
-              </>
-            )}
+          {/* Mobile menu */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={handleMenu}
+              onClick={handleOpenNavMenu}
               color="inherit"
             >
-              <AccountCircle />
+              <MenuIcon />
             </IconButton>
             <Menu
               id="menu-appbar"
-              anchorEl={anchorEl}
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+              }}
+            >
+              {user?.role === 'admin' ? (
+                <MenuItem onClick={() => { handleCloseNavMenu(); router.push('/admin/dashboard'); }}>
+                  Dashboard
+                </MenuItem>
+              ) : (
+                <MenuItem onClick={() => { handleCloseNavMenu(); router.push('/shop'); }}>
+                  Shop
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
+
+          {/* Logo for mobile screens */}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
+          >
+            SmartStore
+          </Typography>
+
+          {/* Desktop menu */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {user?.role === 'admin' ? (
+              <Button
+                onClick={() => router.push('/admin/dashboard')}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Dashboard
+              </Button>
+            ) : (
+              <Button
+                onClick={() => router.push('/shop')}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Shop
+              </Button>
+            )}
+          </Box>
+
+          {/* Cart icon */}
+          {user?.role !== 'admin' && (
+            <Box sx={{ mr: 2 }}>
+              <IconButton color="inherit" onClick={handleCartClick}>
+                <Badge badgeContent={cartItemCount} color="error">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            </Box>
+          )}
+
+          {/* User menu */}
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt={user?.name} src="/static/images/avatar/2.jpg" />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
               anchorOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
@@ -90,30 +178,24 @@ export default function Header() {
                 vertical: 'top',
                 horizontal: 'right',
               }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={handleProfile}>My Profile</MenuItem>
-              {user.role !== 'admin' && (
-                <>
-                  <MenuItem onClick={() => router.push('/user/orders')}>My Orders</MenuItem>
-                  <MenuItem onClick={() => router.push('/user/wishlist')}>Wishlist</MenuItem>
-                </>
+              <MenuItem onClick={() => { handleCloseUserMenu(); router.push('/profile'); }}>
+                Profile
+              </MenuItem>
+              {user?.role !== 'admin' && (
+                <MenuItem onClick={() => { handleCloseUserMenu(); router.push('/shop/orders'); }}>
+                  My Orders
+                </MenuItem>
               )}
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-          </>
-        ) : (
-          <>
-            <Button color="inherit" onClick={() => router.push('/auth/login')}>
-              Login
-            </Button>
-            <Button color="inherit" onClick={() => router.push('/register')}>
-              Register
-            </Button>
-          </>
-        )}
-      </Toolbar>
+          </Box>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
-} 
+};
+
+export default Header; 

@@ -1,94 +1,140 @@
 import {
-  Inventory as InventoryIcon,
+  ShoppingCart as OrdersIcon,
   People as PeopleIcon,
-  ShoppingCart as ShoppingCartIcon,
+  Inventory as ProductsIcon
 } from '@mui/icons-material';
 import {
-  Container,
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
   Grid,
-  Paper,
   Typography
 } from '@mui/material';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrders } from '../../store/slices/orderSlice';
-import { fetchProducts } from '../../store/slices/productSlice';
-import { fetchUsers } from '../../store/slices/userSlice';
+import { useEffect, useState } from 'react';
+import AdminLayout from '../../components/layouts/AdminLayout';
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { products = [] } = useSelector((state) => state.products);
-  const { users = [] } = useSelector((state) => state.users);
-  const { orders = [] } = useSelector((state) => state.orders);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalProducts: 0,
+    totalOrders: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
+    if (status === 'unauthenticated') {
       router.push('/auth/login');
-      return;
+    } else if (session?.user?.role !== 'admin') {
+      router.push('/shop');
+    } else {
+      fetchStats();
     }
-    // Fetch all required data
-    dispatch(fetchUsers());
-    dispatch(fetchProducts());
-    dispatch(fetchOrders());
-  }, [user, router, dispatch]);
+  }, [session, status]);
 
-  if (!user || user.role !== 'admin') {
-    return null;
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch all stats in parallel
+      const [usersRes, productsRes, ordersRes] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/products'),
+        fetch('/api/orders')
+      ]);
+
+      if (!usersRes.ok || !productsRes.ok || !ordersRes.ok) {
+        throw new Error('Failed to fetch dashboard stats');
+      }
+
+      const [users, products, orders] = await Promise.all([
+        usersRes.json(),
+        productsRes.json(),
+        ordersRes.json()
+      ]);
+
+      setStats({
+        totalUsers: users.length,
+        totalProducts: products.length,
+        totalOrders: orders.length
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
+    );
   }
 
-  const stats = [
-    {
-      title: 'Total Users',
-      value: users.length,
-      icon: <PeopleIcon sx={{ fontSize: 40 }} />,
-      color: '#1976d2',
-    },
-    {
-      title: 'Total Products',
-      value: products.length,
-      icon: <InventoryIcon sx={{ fontSize: 40 }} />,
-      color: '#2e7d32',
-    },
-    {
-      title: 'Total Orders',
-      value: orders.length,
-      icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
-      color: '#ed6c02',
-    },
-  ];
+  if (error) {
+    return (
+      <AdminLayout>
+        <Box sx={{ p: 2 }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Dashboard
-      </Typography>
-      <Grid container spacing={3}>
-        {stats.map((stat) => (
-          <Grid item xs={12} sm={4} key={stat.title}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                bgcolor: stat.color,
-                color: 'white',
-              }}
-            >
-              {stat.icon}
-              <Typography variant="h6" component="h2" sx={{ mt: 1 }}>
-                {stat.title}
-              </Typography>
-              <Typography variant="h4" component="p">
-                {stat.value}
-              </Typography>
-            </Paper>
+    <AdminLayout>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          Dashboard
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <PeopleIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                  <Typography variant="h6">Total Users</Typography>
+                </Box>
+                <Typography variant="h4">{stats.totalUsers}</Typography>
+              </CardContent>
+            </Card>
           </Grid>
-        ))}
-      </Grid>
-    </Container>
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <ProductsIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                  <Typography variant="h6">Total Products</Typography>
+                </Box>
+                <Typography variant="h4">{stats.totalProducts}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <OrdersIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                  <Typography variant="h6">Total Orders</Typography>
+                </Box>
+                <Typography variant="h4">{stats.totalOrders}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+    </AdminLayout>
   );
 } 

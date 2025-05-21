@@ -2,39 +2,50 @@
   {
     "id": "1",
     "name": "Smartphone X",
-    "description": "Latest model with advanced features",
-    "price": 699.99,
+    "description": "Latest smartphone with advanced features",
+    "price": 999.99,
     "category": "Electronics",
-    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Smartphone",
-    "stock": 50,
-    "createdAt": "2024-02-20T00:00:00.000Z"
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Smartphone&font=noto"
   },
   {
     "id": "2",
     "name": "Laptop Pro",
     "description": "High-performance laptop for professionals",
-    "price": 500.99,
+    "price": 1499.99,
     "category": "Electronics",
-    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Laptop",
-    "stock": 30,
-    "createdAt": "2024-02-20T00:00:00.000Z"
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Laptop&font=noto"
   },
   {
     "id": "3",
-    "name": "Coffee Maker",
-    "description": "Automatic coffee maker with timer",
-    "price": 79.99,
-    "category": "Home & Kitchen",
-    "image": "https://via.placeholder.com/150",
-    "createdAt": "2024-02-20T00:00:00.000Z"
+    "name": "Wireless Headphones",
+    "description": "Premium noise-cancelling headphones",
+    "price": 299.99,
+    "category": "Electronics",
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Headphones&font=noto"
   },
   {
-    "id": "1747748694845",
-    "name": "testing",
-    "description": "testing",
-    "price": "8",
-    "category": "testing",
-    "image": "https://www.google.com/imgres?q=any%20image&imgurl=https%3A%2F%2Fwww.shutterstock.com%2Fimage-photo%2Fred-text-any-questions-paper-600w-2312396111.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fany-questions&docid=8IgxqHl34lVbAM&tbnid=_dK7iPs9CDK0VM&vet=12ahUKEwji_JmYl7KNAxV3SmwGHQikOwUQM3oECGUQAA..i&w=600&h=421&hcb=2&ved=2ahUKEwji_JmYl7KNAxV3SmwGHQikOwUQM3oECGUQAA",
-    "createdAt": "2025-05-20T13:44:54.845Z"
+    "id": "4",
+    "name": "Smart Watch",
+    "description": "Feature-rich smartwatch with health tracking",
+    "price": 199.99,
+    "category": "Electronics",
+    "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAlAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAABAUGBwIDCAH/xABMEAACAQMBBQUEBAcNBwUAAAABAgMABBEFBhIhMUEHE1FhcRQikaEygbHBFSNCUnOi0SQlMzVTYnJ0krLh8PEWJoKTo7PCJzRDRNL/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAgED/8QAGhEBAAMBAQEAAAAAAAAAAAAAAAECESESA//aAAwDAQACEQMRAD8AvGiiigKKKKArzNBqutv+0D8GvJpmhurXi+7NcYyIT4L0LfIfYE11bXdL0ZA2p30NvkZVWOWb0UcTUbl7TtnkJ3DdyDoVhxn4mqRuJZrmeSe4leWaQ5eSRizN6k1r45oLqftU0Vfo2143/Co++tDdrGmD6On3R9WUffVOEGkl7cmDCIcysOA8B4mgtnWu15Ut8WFstvIfyph3pPooI+JNQm87TNppnJi1e5C54KIYYwPgpPxNQ1UZsu2SW5k9a8eF2/KPxoJWvaHtehLQbQXKH82WGJx8Sh+ypFofbPrNpIke0Nhb3cJPGW1PduB444g/KqtMMyng7fGs1kZfdlGAevSg6x2f13TdodOTUNJuBNAxweGGRhzVh0NOdcw9nW00myO0qTSORY3GEul6FM/T9V5+mfGunEZXRWRgysMgg8CKDKiiigKKKKAooooCisJZFijaSRlRFGWZjgAeJNRK729tWkZNFsptRVf/ALO+sVufR2PveqgjzoNXaTtb+AtPFlYyY1K5Hukc4U6t69B9Z6VSHEnJJJPMnjmpJqek6jquoz6hqmrWS3E7lmUzx4QdFHvZwBwpE2hWqH8ZtFpyj+scvghoGg0U7fgzRE/hdpYj491Gz/cKTXdvoqITba1NI3gbYgH688PhQNtzKsELSPk44AD8o9BUj7M9gztabzUdUkkjslDRoycC82OY6bq/M8OhpjtrDTNUUwzX72t0p/FmX3o3P80/tHxq2Ozram2stMs9D1C2jtFhIt4LyJswzP4MT9GRjk8eBJ59KCo9o9FudntWn0+8GGibgw5OvRh5H9o6U1NPGn0mFTfto0i+O10skkrd1cIskMhJxu4wU+oj9YeNV6dFlPO4HzoFBvIPzlo9ot2GN5eNJ/wG38uvwr1dDI/+f9WgxuWEEfunKA5QjjjyqwOyTba9s9esLK/vJ30+cG23JJCURiR3ZAPLj7vDofhXtzpnsyB2dpFzggcK2W7lGKxEIeaEHGCPsoOxaKZtkdZt9e2es9RtZGkR03WZ1wS6+62RxHMHlwp5oCiiigKKK8dt1S3gM0FJdsG00+oXp0S1kKafA5E262PaJBwIP8xTwx1IPhVdM7t9Jmb1OadtXdtT1903gCxxk/Wx9SST6k0331t7HcGEypKQASycvSgT4HhRRSa9vY7RePvOeS0CliEUs5CgcyeGKQT6tBHwjBkPwFM91dS3LZkbh0A5CsLcp7RF3uNzfG9kcMZoFk2pzze6dxFJ44HH40+aHrl3pk17YzEzWtyhinhfiD4MPAjmDWraa50GW0WPSIlDhkIYR7v529k4BI+hj0Nab6IR6nb4J/G2lvIT5mNams+o1Nbeq7mLeurr/a/spOo3GZNR0R2DvkbzqoG8T6oQx81qrzcsDjuWyP5wqz+wnFxHtHpsw3oGELMvjvh1PyWoHtJs/qWztz3OqWrwoXZYpWxuyhT9IEHwwfLNUo1m5k6QfFxWPtUv8iv/ADP8K197H0kH1V6JE/OBoPJpJZo2QwoAwx/Cf4U3rETF755Hio/zxpy3geVJWQiZxundbiKC6uwXVA9jqekkn8TItxH4brjBx9aj41bNVl2DRWY2Yu5IogLsXRSaQ83AUFfQDePD1PMmrNoCiiigK0XzblncN+bEx+Vb6Sau25pV63QW7n9U0HMlzbS3etTW1uoaR5WCgsAMDmSTwAABJJ5AGtsehXb3Bh76yRd2Nlne4HdOHJCbrDOd7DY/onOMUexXGo7Qy2lrvd5JO67w/JXjvE+QXJI68qcIra6nvpryPSr+S30uNEt7Q27mSUjPdBlxnid52OMcwOYoGSKzLvcLcXMVlHbqTPNOGZY8MFxhQSTvHGBSRNjLyW5uYb2/tobzvnhto23m9qdFDndIGAN1lwTjmBWVpaanr88UtvJHqd1Z700mlTqwKlpjvKF4bwyQzYIxveRqVTiOfVo9Rt7qKS00y/vZLyZp1PdFo03R5gkFVwOOMUFUV4K9rygyJzUk1XI1e0U9LG1/7S1GqlWvKF2jRF5LaWg/6KftoLT7BOGq7Rforb7Zae+3iyE+yNvdEcbW8Q58mBQ/aPhTL2DD999ov0Vt9stTLteg9o7PNWHVBFJ6bsqE/IGg5nCkHFZqTmssUUGxXIoZ951rWCaPyhQXJ2AXf43W7H8kd1MvnneU/YKuGqJ7CZdzay9iz/CWJPqQ6ftNXtQFFFFAUh13+JNQ/qsn900upBtB/EWo/wBVl/umg5kvZHj1O6eJ2RhM+GU4I4mk2r6Xrk1vHOba6jt2bjPKSqs3QZP+RUk2Vs4r7bIrKARG00yhuI3lyVJ9Dg/VUovYYp4bmzluI2nhkjKpckMe7ZWwF48SSBzxz5dK6fOkWnGxXYmdUVcQSW0rRToyOpwysMEGtW95VONt9n5oLiEqilSG3ZN7IdOBXBAwcBiM+CjlioS0Td4VUZOce7xqLRksa6KyIKkhhgjgQelTCy0nZprSzmm1CDfMcbXEbzkNkht7AA4ENujGemetYIdUv2oXd2vlXwhth/0I6bdprPSbW8t10W5SaNwxcKxbcO+cDPUYx58PPJdtrh/vxdqOggX4RIKCzOwX+NtpP0dt9stTXtVnij2A1pXdQzwboGeJJYAfM1DOwdf302jbpuWw/wC5UH7Wpp7nb+7Sd2bu3ZY1PQBVwB9VBFa8rZ3b/mN8KwFsJTKZJJIu7TICuFyeNBjXvUVhEQUwH39043s86224je4iSR1CM4DEnpmgsLsQb/fUkcR7HIpI5ZyldAVzv2V3I0/bDS47fdWGctE3HgQyn7wtdEUBRRRQFN20RxoOo/1aQfqmnGm3aQ40DUP0DfZQc12WsfgbaGG5Y+488iSHwRgQfhkGpls1plrLDdXNxOiW8iuhmLA4yDhvTB5gkVU+vzFtSYZ4Jn4k/wClIkleQd0XbdPTe4V0peaxwWvtMoW0e2klkeGFWihl5MqnlnJ+rh0qtNQUwMEJLRrzjJwM4xkf59akV1qXtlsJjIWdt0MhDEtkDj4cDyGegqMajIZ3Vyw48POsnvW5kYQO29u+6BgY4dakmzd/okFg0OsW6SN3pIIhBfGB+Vg8OfDyqNlW3d7BxnGcda8yahh916bTbnUbQ6TGqRkkuFi3MFpGIXHiFKjw4U8bXj/1A1EeEqL8EWolpw3r+2XxmQfMVLtrDvdomrjli7K/DA+6gtDsJH7s2iPnB/50wdvulpDrkF8MfuiEMfVfdPy3fnUh7CR+6NoT/PhHyas+361EulabKDh1M8Y+tM/+NBRHdDA4mlOmxql9E/gTz9K1v9LHhwoXJK4JG6wPunBoFWrhZLqAKBhkO9wHHH+tJfZ1UhlHEHI9a2Q9/hxPJ32QN0tzXj0rYRhcmgk2x8gg2j0iRRvBbyIqPIsMfbXTdcxbJxvJreiqgBdrmHAH9IV07QFFFFAU07VHGz2oY/kTTtTVtUrPs1qoQEv7JKVA5khSRQcd6jJ3l/cOesjfbWhTg8KJW35Hb85iawoHGTUZjDHFvyGOFAsas2d3jk44Dhkk0ldgyg7+WYHeGOXhWnJNesrqAWUgHlkc6ALnd3cndznGeFY0UUCzRl3tXsl8biMfrCpRtK4k7RNcKcQNRlHwcj7qjuzSCTaHTVbgntUZY+QYE/KnJ7v23aK91DP/ALm6kmB8d5yfvoLs7CEzba7L43SLn0XP31v7d4wdmrOUkgrdbo895GpV2IWbQbITXbrg3l5JIufzRhB81NMvb7qYW103S0ILF2uZPEADdUfWWb+zQUkeLk1hNIY1BVWL56DhShY+NLLOyu7oM1rayyxqQN8DCk+APWgSWokdcyR7nhx51ulXCUpjiI4MpVhzUjiD4VquUYskaKWZjgKOZPSgnPYrZfhDaeCZhkWCzSHPQ53V/vfKugKgPZlsNdbKtd3eoXMctxdIiiOMHEQHEjPU58ulT6gKKKKArwjPA8QeYr2ig5d7Vdg59mdekms4v3pvHL274wsTE5MRPIY6eI9DUMOk3o49ySPEca7Mv7G11G0ktL63iuLeUbrxyqGVh6VXmp9jOhXErS2Fzc2Qbj3eA6j05H5mg5yOn3i87eT+zWU6XDKA1vIvLPunmBj6qmWs7PXOjancWF2jpLC2MiUgOvRh5GkJsnzwaYelw1BEjFIOcbD/AIax3T1BFS/2WUDAef8A5uftrW9kzLhxI/qRQR6wSQSF1BHArn1GD8qkWzeh3ms6rb6fYRlp5jjOMiNert5D/Ck88PswH4ojP0eWK6P7M7DQYdmrO90CHAuYlM0shDSs44Mrt4g54DA8BQSDR7CDRtJtbCA4gtYhGGY8wBxJ8zxJrnPb3Wf9odpru9UkwltyH9GvBfjxb66t3ta2nXSdGOmW0mLy9Uq26cGOLqfLPIfX4VRIBYljzPGg04WNd5jgU+aRtRq+n2A0zTNWltrQFiII0Qczk4JXe6+NNkM1rHdRSzLazmJs9zcElG8mUEZHlmnvV9ck1ZYg2naTZpH9EWFmIs8OpyT9WcUDYRzZuJ5k+NOvZ1pA1/bqyiYZgtW9ql8whBA/tFB8aY7y47qI44seCjxNXP2I7PHTNn31a4QC41IhkPXuR9H4ks3oRQWSKKKKAooooCiiigKKKKCHdouyQ2g032i0UfhK2BMXTvV6ofu8/U1RrKysyupVlJDKRgg9Qa6jqBbe7ALrTPqWkbkOoY/GRngtx+xvPr18QFMUVtvrS6sLprW+t5Ledecci4I/aPMcOFaM+tBhcQrPE0b8jyPgehp97PNu5tjTe2N3A1xayAyJGrY3JscD/RbAz4eB40ybxpNe2/tC7ykLKo91vLwNBv1nVbvW9Snv76TflmbJPQDoAOgA5UhM0Qbui3vEfRFJ1meMlGXDDmG6ftFbHliPviP3/HHGgW2U1va20kMdnbSFzkzS940g9PfCj+zWiW4WJfAAcKStNI3BEPlmnfZTZXVNqdQEFhHvBWHfTuPxUA8T4ny58uXMAt2A2Xn2u2hjjmVxYw4e4f8ANTP0f6TcvIZrpeGKOGNI4kCRooVVUYAA5AU17K7O2OzGkx6fYJwHvSyt9KV8cWb/ADwHCnigKKKKAooooCiiigKKKKAooooEeoaXY6nD3Oo2kNzH0EqBsenhUel7ONlpGLCwkTPRbiTH96iig1t2abNk+7DcKPATk/bWiTsx2dzwF2PSb/CiigT3PZTs1cIBILzhxBE/EfKmSbso0BXIW61IAdO9T/8AFFFA6aP2S7LgLLcre3WD9CW4wp9dwLU+sbG10+2jtbG3it7eMYSKJQqr9QoooFNFFFAUUUUBRRRQf//Z",
+    "updatedAt": "2025-05-21T11:18:21.453Z"
+  },
+  {
+    "id": "5",
+    "name": "Running Shoes",
+    "description": "Comfortable running shoes for athletes",
+    "price": 89.99,
+    "category": "Sports",
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Shoes&font=noto"
+  },
+  {
+    "id": "6",
+    "name": "Yoga Mat",
+    "description": "Premium yoga mat with carrying strap",
+    "price": 29.99,
+    "category": "Sports",
+    "image": "https://fakeimg.pl/300x200/282828/eae0d0/?text=Yoga+Mat&font=noto"
   }
 ]

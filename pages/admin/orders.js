@@ -1,227 +1,245 @@
-import { Visibility as VisibilityIcon } from '@mui/icons-material';
 import {
-    Alert,
-    Box,
-    Button,
-    Chip,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Grid,
-    IconButton,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
 } from '@mui/material';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrders, updateOrderStatus } from '../../store/slices/orderSlice';
+import AdminLayout from '../../components/layouts/AdminLayout';
 
-const OrderStatus = {
-  PENDING: 'pending',
-  PROCESSING: 'processing',
-  SHIPPED: 'shipped',
-  DELIVERED: 'delivered',
-  CANCELLED: 'cancelled',
+const statusColors = {
+  pending: 'warning',
+  processing: 'info',
+  shipped: 'primary',
+  delivered: 'success',
+  cancelled: 'error'
 };
 
-const StatusColors = {
-  [OrderStatus.PENDING]: 'warning',
-  [OrderStatus.PROCESSING]: 'info',
-  [OrderStatus.SHIPPED]: 'primary',
-  [OrderStatus.DELIVERED]: 'success',
-  [OrderStatus.CANCELLED]: 'error',
-};
+const statusOptions = [
+  { value: 'all', label: 'All Orders' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'processing', label: 'Processing' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'cancelled', label: 'Cancelled' }
+];
 
 export default function AdminOrders() {
-  const dispatch = useDispatch();
-  const { orders = [], loading, error } = useSelector((state) => state.orders);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState('all');
 
   useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
+    } else if (session?.user?.role !== 'admin') {
+      router.push('/');
+    }
+  }, [session, status, router]);
 
-  const handleOpen = (order) => {
-    setSelectedOrder(order);
-    setOpen(true);
-  };
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedOrder(null);
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/orders');
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      const data = await response.json();
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await dispatch(updateOrderStatus({ id: orderId, status: newStatus })).unwrap();
-      // Refresh orders after status update
-      dispatch(fetchOrders());
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+
+      // Update the order in the local state
+      setOrders(orders.map(order => 
+        order.id === orderId 
+          ? { ...order, status: newStatus }
+          : order
+      ));
     } catch (error) {
       console.error('Error updating order status:', error);
+      setError(error.message);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'warning';
-      case 'processing':
-        return 'info';
-      case 'shipped':
-        return 'primary';
-      case 'delivered':
-        return 'success';
-      case 'cancelled':
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
+  // Filter orders based on selected status
+  const filteredOrders = (orders || []).filter(order => {
+    if (selectedStatus === 'all') return true;
+    return order.status.toLowerCase() === selectedStatus.toLowerCase();
+  });
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
+      <AdminLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
     );
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Order Management
-      </Typography>
+    <AdminLayout>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Order Management
+        </Typography>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.isArray(orders) && orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.customerName}</TableCell>
-                <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-                <TableCell>${order.total.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={order.status}
-                    color={getStatusColor(order.status)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleOpen(order)} color="primary">
-                    <VisibilityIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        {selectedOrder && (
-          <>
-            <DialogTitle>Order Details</DialogTitle>
-            <DialogContent>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Customer Information
-                  </Typography>
-                  <Typography>Name: {selectedOrder.customerName}</Typography>
-                  <Typography>Email: {selectedOrder.customerEmail}</Typography>
-                  <Typography>Address: {selectedOrder.shippingAddress}</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Order Items
-                  </Typography>
-                  <TableContainer>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Product</TableCell>
-                          <TableCell>Price</TableCell>
-                          <TableCell>Quantity</TableCell>
-                          <TableCell>Subtotal</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item) => (
-                          <TableRow key={item.id}>
-                            <TableCell>{item.name}</TableCell>
-                            <TableCell>${item.price.toFixed(2)}</TableCell>
-                            <TableCell>{item.quantity}</TableCell>
-                            <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Order Summary
-                  </Typography>
-                  <Typography>Subtotal: ${selectedOrder?.subtotal?.toFixed(2) || '0.00'}</Typography>
-                  <Typography>Shipping: ${selectedOrder?.shipping?.toFixed(2) || '0.00'}</Typography>
-                  <Typography>Tax: ${selectedOrder?.tax?.toFixed(2) || '0.00'}</Typography>
-                  <Typography variant="h6">
-                    Total: ${selectedOrder?.total?.toFixed(2) || '0.00'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Update Status
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    {['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
-                      <Chip
-                        key={status}
-                        label={status}
-                        color={getStatusColor(status)}
-                        onClick={() => handleStatusChange(selectedOrder.id, status)}
-                        sx={{ cursor: 'pointer' }}
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-              </Grid>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Close</Button>
-            </DialogActions>
-          </>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
         )}
-      </Dialog>
-    </Box>
+
+        {/* Status Filter */}
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <FormControl fullWidth>
+              <InputLabel>Filter by Status</InputLabel>
+              <Select
+                value={selectedStatus}
+                label="Filter by Status"
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                {statusOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </CardContent>
+        </Card>
+
+        {filteredOrders.length === 0 ? (
+          <Card>
+            <CardContent>
+              <Typography variant="h6" align="center">
+                No orders found
+              </Typography>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredOrders.map((order) => (
+            <Card key={order.id} sx={{ mb: 3 }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Order #{order.id}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Chip
+                      label={order.status}
+                      color={statusColors[order.status.toLowerCase()]}
+                      size="small"
+                    />
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={order.status}
+                        label="Status"
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      >
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="processing">Processing</MenuItem>
+                        <MenuItem value="shipped">Shipped</MenuItem>
+                        <MenuItem value="delivered">Delivered</MenuItem>
+                        <MenuItem value="cancelled">Cancelled</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+
+                <Typography color="text.secondary" gutterBottom>
+                  Customer: {order.userName} ({order.userEmail})
+                </Typography>
+                <Typography color="text.secondary" gutterBottom>
+                  Date: {new Date(order.createdAt).toLocaleDateString()}
+                </Typography>
+
+                <TableContainer component={Paper} sx={{ mt: 2 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Product</TableCell>
+                        <TableCell align="right">Price</TableCell>
+                        <TableCell align="right">Quantity</TableCell>
+                        <TableCell align="right">Total</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {order.items && order.items.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell component="th" scope="row">
+                            {item.name}
+                          </TableCell>
+                          <TableCell align="right">${item.price}</TableCell>
+                          <TableCell align="right">{item.quantity}</TableCell>
+                          <TableCell align="right">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow>
+                        <TableCell colSpan={3} align="right">
+                          <Typography variant="h6">Total</Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography variant="h6">
+                            ${order.total.toFixed(2)}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </Box>
+    </AdminLayout>
   );
 } 

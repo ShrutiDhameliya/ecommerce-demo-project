@@ -1,18 +1,50 @@
 [
-    {
-      "id": "1",
-      "name": "Admin User",
-      "email": "admin@example.com",
-      "password": "admin123",
-      "role": "admin",
-      "createdAt": "2024-02-20T00:00:00.000Z"
-    },
-    {
-      "id": "2",
-      "name": "John Doe",
-      "email": "john@example.com",
-      "password": "user123",
-      "role": "customer",
-      "createdAt": "2024-02-20T00:00:00.000Z"
-    }
-  ] 
+  {
+    "id": "1",
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "role": "admin",
+    "blocked": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "John Doe",
+    "email": "user@example.com",
+    "password": "e606e38b0d8c19b24cf0ee3808183162ea7cd63ff7912dbb22b5e803286b4446",
+    "role": "customer",
+    "blocked": false,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-05-21T09:25:26.319Z"
+  },
+  {
+    "id": "1747810057364",
+    "name": "john",
+    "email": "john@example.com",
+    "password": "e606e38b0d8c19b24cf0ee3808183162ea7cd63ff7912dbb22b5e803286b4446",
+    "role": "customer",
+    "blocked": false,
+    "createdAt": "2025-05-21T06:47:37.364Z"
+  },
+  {
+    "id": "1747818644175",
+    "name": "josef",
+    "email": "josef@example.com",
+    "password": "e606e38b0d8c19b24cf0ee3808183162ea7cd63ff7912dbb22b5e803286b4446",
+    "role": "customer",
+    "blocked": false,
+    "createdAt": "2025-05-21T09:10:44.175Z",
+    "updatedAt": "2025-05-21T11:05:59.804Z"
+  },
+  {
+    "id": "1747826404843",
+    "name": "Siya",
+    "email": "siya@example.com",
+    "password": "e606e38b0d8c19b24cf0ee3808183162ea7cd63ff7912dbb22b5e803286b4446",
+    "role": "customer",
+    "blocked": false,
+    "createdAt": "2025-05-21T11:20:04.843Z",
+    "updatedAt": "2025-05-21T11:51:32.280Z"
+  }
+]
