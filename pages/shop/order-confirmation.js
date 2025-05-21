@@ -6,82 +6,118 @@ import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import CustomerLayout from '../../components/layouts/CustomerLayout';
 
 export default function OrderConfirmation() {
   const router = useRouter();
-  const { userOrders } = useSelector((state) => state.orders);
-  const latestOrder = userOrders[userOrders.length - 1];
+  const { orderId } = router.query;
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Redirect to products if no order is found
-    if (!latestOrder) {
-      router.push('/shop/products');
+    if (!orderId) {
+      router.push('/shop');
+      return;
     }
-  }, [latestOrder, router]);
 
-  if (!latestOrder) {
+    const fetchOrder = async () => {
+      try {
+        const response = await fetch(`/api/orders/${orderId}`);
+        if (!response.ok) throw new Error('Failed to fetch order');
+        const data = await response.json();
+        setOrder(data);
+      } catch (error) {
+        console.error('Error fetching order:', error);
+        router.push('/shop');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
+  }, [orderId, router]);
+
+  if (loading) {
+    return (
+      <CustomerLayout>
+        <Container maxWidth="md" sx={{ py: 4 }}>
+          <Typography>Loading...</Typography>
+        </Container>
+      </CustomerLayout>
+    );
+  }
+
+  if (!order) {
     return null;
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Card>
-        <CardContent>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <CheckCircleIcon color="success" sx={{ fontSize: 60 }} />
-            <Typography variant="h4" component="h1" gutterBottom>
-              Order Confirmed!
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Thank you for your purchase. Your order has been received.
-            </Typography>
-          </Box>
+    <CustomerLayout>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Card>
+          <CardContent>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <CheckCircleIcon color="success" sx={{ fontSize: 60 }} />
+              <Typography variant="h4" component="h1" gutterBottom>
+                Order Confirmed!
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Thank you for your purchase. Your order has been received.
+              </Typography>
+            </Box>
 
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Order Details
-            </Typography>
-            <Typography variant="body1">
-              Order Number: #{latestOrder.id}
-            </Typography>
-            <Typography variant="body1">
-              Date: {new Date(latestOrder.createdAt).toLocaleDateString()}
-            </Typography>
-            <Typography variant="body1">
-              Total: ${latestOrder.total.toFixed(2)}
-            </Typography>
-          </Box>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Order Details
+              </Typography>
+              <Typography variant="body1">
+                Order Number: #{order.id}
+              </Typography>
+              <Typography variant="body1">
+                Date: {new Date(order.createdAt).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body1">
+                Total: ${order.total.toFixed(2)}
+              </Typography>
+            </Box>
 
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Shipping Information
-            </Typography>
-            <Typography variant="body1">
-              {latestOrder.shippingAddress.address}
-            </Typography>
-            <Typography variant="body1">
-              {latestOrder.shippingAddress.city}, {latestOrder.shippingAddress.state} {latestOrder.shippingAddress.zipCode}
-            </Typography>
-          </Box>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Shipping Information
+              </Typography>
+              <Typography variant="body1">
+                {order.shippingAddress.address}
+              </Typography>
+              <Typography variant="body1">
+                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+              </Typography>
+            </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              onClick={() => router.push('/shop/products')}
-            >
-              Continue Shopping
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => router.push('/user/orders')}
-            >
-              View Orders
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    </Container>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+              <Button
+                variant="contained"
+                onClick={() => router.push('/shop')}
+              >
+                Continue Shopping
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => router.push('/orders')}
+              >
+                View Orders
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+    </CustomerLayout>
   );
-} 
+}
+
+// Make this page dynamic to prevent static generation
+export const getServerSideProps = async () => {
+  return {
+    props: {}
+  };
+};
