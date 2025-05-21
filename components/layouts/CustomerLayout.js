@@ -1,5 +1,4 @@
 import {
-  ShoppingCart as CartIcon,
   Logout as LogoutIcon,
   Receipt as OrdersIcon,
   Person as ProfileIcon,
@@ -7,12 +6,10 @@ import {
 } from '@mui/icons-material';
 import {
   AppBar,
-  Badge,
   Box,
   Button,
   Container,
   Divider,
-  IconButton,
   List,
   ListItem,
   ListItemIcon,
@@ -99,7 +96,7 @@ export default function CustomerLayout({ children }) {
           </Typography>
           
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton
+            {/* <IconButton
               color="inherit"
               component={Link}
               href="/cart"
@@ -108,16 +105,16 @@ export default function CustomerLayout({ children }) {
               <Badge badgeContent={cartCount} color="error">
                 <CartIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
             
-            <Button
+            {/* <Button
               color="inherit"
               component={Link}
               href="/profile"
               sx={{ mr: 1 }}
             >
               Profile
-            </Button>
+            </Button> */}
             
             <Button
               color="inherit"
