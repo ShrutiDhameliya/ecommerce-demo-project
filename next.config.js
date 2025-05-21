@@ -1,6 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
+  output: 'standalone',
+  images: {
+    domains: ['localhost'],
+    unoptimized: true
+  },
+  // Ensure proper asset handling
+  assetPrefix: process.env.NODE_ENV === 'production' ? '.' : '',
+  // Disable static optimization for dynamic pages
+  experimental: {
+    // This helps with the build process
+    optimizeCss: true,
+    scrollRestoration: true
+  },
   async rewrites() {
     return [
       {
