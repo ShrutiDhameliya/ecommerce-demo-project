@@ -1,63 +1,64 @@
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CheckCircle as CheckCircleIcon,
-    Typography
-} from '@mui/material';
-import { useSession } from 'next-auth/react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import CustomerLayout from '../../components/layouts/CustomerLayout';
 
 export default function OrderSuccess() {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const { orderId } = router.query;
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login');
-    } else if (session?.user?.role === 'admin') {
-      router.push('/admin');
+    if (!orderId) {
+      router.push('/shop');
     }
-  }, [session, status, router]);
+  }, [orderId, router]);
+
+  if (!orderId) {
+    return null;
+  }
 
   return (
     <CustomerLayout>
-      <Box sx={{ mb: 4 }}>
+      <Container maxWidth="md" sx={{ py: 8 }}>
         <Card>
           <CardContent>
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <CheckCircleIcon
-                color="success"
-                sx={{ fontSize: 80, mb: 2 }}
-              />
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <CheckCircleIcon color="success" sx={{ fontSize: 60 }} />
               <Typography variant="h4" component="h1" gutterBottom>
-                Order Placed Successfully!
+                Order Successful!
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph>
                 Thank you for your purchase. Your order has been received and is being processed.
               </Typography>
-              <Box sx={{ mt: 4 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => router.push('/orders')}
-                  sx={{ mr: 2 }}
-                >
-                  View Orders
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => router.push('/shop')}
-                >
-                  Continue Shopping
-                </Button>
-              </Box>
+              <Typography variant="body1" color="text.secondary" paragraph>
+                Order ID: {orderId}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: 'center' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => router.push('/shop')}
+                sx={{ mr: 2 }}
+              >
+                Continue Shopping
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => router.push('/orders')}
+              >
+                View Orders
+              </Button>
             </Box>
           </CardContent>
         </Card>
-      </Box>
+      </Container>
     </CustomerLayout>
   );
 } 

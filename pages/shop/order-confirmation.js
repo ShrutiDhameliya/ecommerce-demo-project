@@ -1,12 +1,10 @@
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    CheckCircle,
-    Container,
-    Typography
-} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -32,7 +30,7 @@ export default function OrderConfirmation() {
       <Card>
         <CardContent>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <CheckCircle color="success" sx={{ fontSize: 60 }} />
+            <CheckCircleIcon color="success" sx={{ fontSize: 60 }} />
             <Typography variant="h4" component="h1" gutterBottom>
               Order Confirmed!
             </Typography>
